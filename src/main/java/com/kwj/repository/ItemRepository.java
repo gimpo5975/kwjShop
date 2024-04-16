@@ -9,8 +9,10 @@ import java.util.List;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
+    //제품명 으로 검색
     List<Item> findByItemNm(String itemNm);
 
+    //가격 기준 내림차순으로 제품 상세 설명 검색
     @Query("select i from Item i where i.itemDetail like %:itemDetail% order by i.price desc")
     List<Item> findByItemDetail(@Param("itemDetail") String itemDetail);
 }//end of interface
