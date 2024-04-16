@@ -2,6 +2,11 @@ package com.kwj.repository;
 
 import com.kwj.constant.ItemSellStatus;
 import com.kwj.entity.Item;
+import com.kwj.entity.QItem;
+import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +24,9 @@ import java.util.List;
 // 설정이있다면 더 높은 우선순위를 부여. 기존 설정은 MySQL 을 사용하지만 테스트에서는 h2 사용
     
 class ItemRepositoryTest {
+
+    @PersistenceContext
+    EntityManager em;//영속성 컨텍스트를 사용하기 위해 EntityManager 빈을 주입
 
     @Autowired//Bean 을 주입
     ItemRepository itemRepository;
@@ -76,5 +84,28 @@ class ItemRepositoryTest {
             System.out.println(item.toString());
         }//end of for
     }//end of method
+
+    @Test
+    @DisplayName("Querydsl 조회테스트1")
+    public void queryDslTest(){
+
+        this.createItemList();
+        JPAQueryFactory queryFactory = new JPAQueryFactory(em);
+        QItem qItem = QItem.item;
+        JPAQuery<Item> query = queryFactory.selectFrom(qItem)
+                .where(qItem.itemSellStatus.eq(ItemSellStatus.SELL))
+                .where(qItem.itemDetail.like("%"+"테스트"+"%"))
+                .orderBy(qItem.price.desc());
+
+        List<Item> itemList = query.fetch();
+        for (Item item:itemList){
+            System.out.println(item.toString());
+        }//end of for
+    }//end of method
+
+    public void createItemList2(){
+
+    }//end of method
+
 
 }//end of testClass
